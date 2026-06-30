@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Administrativo - EDUS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">EDUS - Administración</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <span class="nav-link" id="admin-name-display">Administrador</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link text-danger" href="#" id="btn-logout">Cerrar Sesión</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container-fluid mt-4 px-4">
+        <div id="alert-container"></div>
+
+        <div class="row">
+            <div class="col-md-2 mb-4">
+                <div class="list-group" id="admin-menu" role="tablist">
+                    <a class="list-group-item list-group-item-action active" id="menu-patients" data-bs-toggle="list" href="#panel-patients" role="tab">Gestión de Pacientes</a>
+                    <a class="list-group-item list-group-item-action" id="menu-doctors" data-bs-toggle="list" href="#panel-doctors" role="tab">Gestión de Médicos</a>
+                    <a class="list-group-item list-group-item-action" id="menu-schedules" data-bs-toggle="list" href="#panel-schedules" role="tab">Gestión de Horarios</a>
+                    <a class="list-group-item list-group-item-action" id="menu-reports" data-bs-toggle="list" href="#panel-reports" role="tab">Reportes (Citas)</a>
+                </div>
+            </div>
+            
+            <div class="col-md-10">
+                <div class="tab-content" id="nav-tabContent">
+                    <!-- Panel Pacientes -->
+                    <div class="tab-pane fade show active" id="panel-patients" role="tabpanel">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Pacientes Registrados</h5>
+                                <!-- Un modal para agregar pacientes manualmente, si aplica, aunque se registran solos -->
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#patientModal" id="btn-new-patient">Registrar Paciente</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Cédula</th>
+                                                <th>Nombre</th>
+                                                <th>Apellidos</th>
+                                                <th>Email</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-patients-table">
+                                            <tr><td colspan="5" class="text-center">Cargando...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel Médicos -->
+                    <div class="tab-pane fade" id="panel-doctors" role="tabpanel">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Cuerpo Médico</h5>
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#doctorModal" id="btn-new-doctor">Agregar Médico</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Identificación</th>
+                                                <th>Nombre</th>
+                                                <th>Apellidos</th>
+                                                <th>Especialidad</th>
+                                                <th>Estado</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-doctors-table">
+                                            <tr><td colspan="6" class="text-center">Cargando...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel Horarios -->
+                    <div class="tab-pane fade" id="panel-schedules" role="tabpanel">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Control de Disponibilidad y Horarios</h5>
+                                <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#scheduleModal" id="btn-new-schedule">Asignar Horario</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="row mb-3">
+                                    <div class="col-md-4">
+                                        <label for="filter-doc-schedule" class="form-label">Filtrar por Médico:</label>
+                                        <select class="form-select" id="filter-doc-schedule">
+                                            <option value="">Todos</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>Médico</th>
+                                                <th>Fecha</th>
+                                                <th>Inicio</th>
+                                                <th>Fin</th>
+                                                <th>Disponible</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-schedules-table">
+                                            <tr><td colspan="6" class="text-center">Cargando...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel Reportes -->
+                    <div class="tab-pane fade" id="panel-reports" role="tabpanel">
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">Reporte General de Citas</h5>
+                                <button class="btn btn-sm btn-outline-secondary" id="btn-refresh-reports">Actualizar</button>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Cita</th>
+                                                <th>Paciente</th>
+                                                <th>Médico</th>
+                                                <th>Fecha</th>
+                                                <th>Estado</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="admin-reports-table">
+                                            <tr><td colspan="5" class="text-center">Cargando...</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Modal Doctor -->
+    <div class="modal fade" id="doctorModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="doctorModalLabel">Registrar Médico</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-doctor">
+                        <input type="hidden" id="doc-id">
+                        <div class="mb-2">
+                            <label class="form-label">Identificación</label>
+                            <input type="text" class="form-control" id="doc-ident" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="doc-name" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Apellidos</label>
+                            <input type="text" class="form-control" id="doc-lastname" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Especialidad</label>
+                            <input type="text" class="form-control" id="doc-specialty" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" id="doc-status" required>
+                                <option value="active">Activo</option>
+                                <option value="inactive">Inactivo</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-save-doctor">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Horario -->
+    <div class="modal fade" id="scheduleModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scheduleModalLabel">Asignar Horario</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-schedule">
+                        <input type="hidden" id="sched-id">
+                        <div class="mb-2">
+                            <label class="form-label">Médico</label>
+                            <select class="form-select" id="sched-doctor" required></select>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Fecha</label>
+                            <input type="date" class="form-control" id="sched-date" required>
+                        </div>
+                        <div class="mb-2 row">
+                            <div class="col">
+                                <label class="form-label">Hora Inicio</label>
+                                <input type="time" class="form-control" id="sched-start" required>
+                            </div>
+                            <div class="col">
+                                <label class="form-label">Hora Fin</label>
+                                <input type="time" class="form-control" id="sched-end" required>
+                            </div>
+                        </div>
+                        <div class="mb-2 form-check">
+                            <input type="checkbox" class="form-check-input" id="sched-available" checked>
+                            <label class="form-check-label">Disponible</label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-save-schedule">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/utils.js"></script>
+    <script src="assets/js/admin.js"></script>
+</body>
+</html>
