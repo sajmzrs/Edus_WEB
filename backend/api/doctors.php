@@ -28,12 +28,12 @@ switch($action) {
     case 'save':
         if(isset($data->identification) && isset($data->first_name) && isset($data->last_name) && isset($data->specialty)) {
             if(isset($data->id) && $data->id != '') {
-                // Update
+                // Actualiza un médico existente.
                 $query = "UPDATE doctors SET identification = :ident, first_name = :fname, last_name = :lname, specialty = :spec, status = :stat WHERE id = :id";
                 $stmt = $db->prepare($query);
                 $stmt->bindParam(":id", $data->id);
             } else {
-                // Insert
+                // Registra un médico nuevo.
                 $query = "INSERT INTO doctors (identification, first_name, last_name, specialty, status) VALUES (:ident, :fname, :lname, :spec, :stat)";
                 $stmt = $db->prepare($query);
             }

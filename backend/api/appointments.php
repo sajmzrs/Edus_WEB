@@ -20,7 +20,7 @@ $data = json_decode(file_get_contents("php://input"));
 
 switch($action) {
     case 'list':
-        $query = "SELECT a.id, a.status, s.schedule_date, s.start_time, d.first_name, d.last_name, d.specialty 
+        $query = "SELECT a.id, a.schedule_id, a.status, s.doctor_id, s.schedule_date, s.start_time, s.end_time, d.first_name, d.last_name, d.specialty
                   FROM appointments a
                   JOIN schedules s ON a.schedule_id = s.id
                   JOIN doctors d ON s.doctor_id = d.id
@@ -70,7 +70,7 @@ switch($action) {
             try {
                 $db->beginTransaction();
                 
-                // Verify availability
+                // Verifica que el horario siga libre.
                 $check = "SELECT is_available FROM schedules WHERE id = :sid FOR UPDATE";
                 $stmtCheck = $db->prepare($check);
                 $stmtCheck->bindParam(":sid", $data->schedule_id);
@@ -78,14 +78,12 @@ switch($action) {
                 $row = $stmtCheck->fetch(PDO::FETCH_ASSOC);
                 
                 if($row && $row['is_available'] == 1) {
-                    // Create appointment
                     $query = "INSERT INTO appointments (patient_id, schedule_id, status) VALUES (:pid, :sid, 'scheduled')";
                     $stmt = $db->prepare($query);
                     $stmt->bindParam(":pid", $patient_id);
                     $stmt->bindParam(":sid", $data->schedule_id);
                     $stmt->execute();
                     
-                    // Update schedule
                     $update = "UPDATE schedules SET is_available = 0 WHERE id = :sid";
                     $stmtUpdate = $db->prepare($update);
                     $stmtUpdate->bindParam(":sid", $data->schedule_id);
@@ -111,7 +109,7 @@ switch($action) {
             try {
                 $db->beginTransaction();
                 
-                // Verify ownership
+                // Verifica que la cita le pertenezca al paciente.
                 $check = "SELECT schedule_id FROM appointments WHERE id = :aid AND patient_id = :pid AND status = 'scheduled'";
                 $stmtCheck = $db->prepare($check);
                 $stmtCheck->bindParam(":aid", $data->appointment_id);
@@ -121,13 +119,11 @@ switch($action) {
                 if($stmtCheck->rowCount() > 0) {
                     $row = $stmtCheck->fetch(PDO::FETCH_ASSOC);
                     
-                    // Cancel appointment
                     $updateApp = "UPDATE appointments SET status = 'cancelled' WHERE id = :aid";
                     $stmtUpdateApp = $db->prepare($updateApp);
                     $stmtUpdateApp->bindParam(":aid", $data->appointment_id);
                     $stmtUpdateApp->execute();
                     
-                    // Free schedule
                     $updateSched = "UPDATE schedules SET is_available = 1 WHERE id = :sid";
                     $stmtUpdateSched = $db->prepare($updateSched);
                     $stmtUpdateSched->bindParam(":sid", $row['schedule_id']);
@@ -144,6 +140,70 @@ switch($action) {
                 $db->rollBack();
                 http_response_code(500);
                 echo json_encode(["success" => false, "message" => "Error al cancelar."]);
+            }
+        }
+        break;
+
+    case 'modify':
+        if(isset($data->appointment_id) && isset($data->schedule_id)) {
+            try {
+                $db->beginTransaction();
+
+                $current = "SELECT a.schedule_id, s.doctor_id
+                            FROM appointments a
+                            JOIN schedules s ON a.schedule_id = s.id
+                            WHERE a.id = :aid AND a.patient_id = :pid AND a.status = 'scheduled'
+                            FOR UPDATE";
+                $stmtCurrent = $db->prepare($current);
+                $stmtCurrent->bindParam(":aid", $data->appointment_id);
+                $stmtCurrent->bindParam(":pid", $patient_id);
+                $stmtCurrent->execute();
+                $appointment = $stmtCurrent->fetch(PDO::FETCH_ASSOC);
+
+                if(!$appointment) {
+                    $db->rollBack();
+                    http_response_code(403);
+                    echo json_encode(["success" => false, "message" => "No se pudo modificar la cita."]);
+                    break;
+                }
+
+                $available = "SELECT id FROM schedules
+                              WHERE id = :sid AND doctor_id = :did AND is_available = 1 AND schedule_date >= CURDATE()
+                              FOR UPDATE";
+                $stmtAvailable = $db->prepare($available);
+                $stmtAvailable->bindParam(":sid", $data->schedule_id);
+                $stmtAvailable->bindParam(":did", $appointment['doctor_id']);
+                $stmtAvailable->execute();
+
+                if($stmtAvailable->rowCount() === 0) {
+                    $db->rollBack();
+                    http_response_code(400);
+                    echo json_encode(["success" => false, "message" => "El nuevo horario no está disponible."]);
+                    break;
+                }
+
+                $updateAppointment = "UPDATE appointments SET schedule_id = :new_sid WHERE id = :aid";
+                $stmtUpdateAppointment = $db->prepare($updateAppointment);
+                $stmtUpdateAppointment->bindParam(":new_sid", $data->schedule_id);
+                $stmtUpdateAppointment->bindParam(":aid", $data->appointment_id);
+                $stmtUpdateAppointment->execute();
+
+                $freeOld = "UPDATE schedules SET is_available = 1 WHERE id = :old_sid";
+                $stmtFreeOld = $db->prepare($freeOld);
+                $stmtFreeOld->bindParam(":old_sid", $appointment['schedule_id']);
+                $stmtFreeOld->execute();
+
+                $takeNew = "UPDATE schedules SET is_available = 0 WHERE id = :new_sid";
+                $stmtTakeNew = $db->prepare($takeNew);
+                $stmtTakeNew->bindParam(":new_sid", $data->schedule_id);
+                $stmtTakeNew->execute();
+
+                $db->commit();
+                echo json_encode(["success" => true, "message" => "Cita modificada correctamente."]);
+            } catch (Exception $e) {
+                $db->rollBack();
+                http_response_code(500);
+                echo json_encode(["success" => false, "message" => "Error al modificar la cita."]);
             }
         }
         break;

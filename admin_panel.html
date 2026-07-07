@@ -47,7 +47,6 @@
                         <div class="card">
                             <div class="card-header d-flex justify-content-between align-items-center">
                                 <h5 class="mb-0">Pacientes Registrados</h5>
-                                <!-- Un modal para agregar pacientes manualmente, si aplica, aunque se registran solos -->
                                 <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#patientModal" id="btn-new-patient">Registrar Paciente</button>
                             </div>
                             <div class="card-body">
@@ -170,6 +169,48 @@
     </main>
 
     <!-- Modals -->
+    <!-- Modal Paciente -->
+    <div class="modal fade" id="patientModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="patientModalLabel">Registrar Paciente</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form-patient">
+                        <input type="hidden" id="patient-id">
+                        <div class="mb-2">
+                            <label class="form-label">Cédula</label>
+                            <input type="text" class="form-control" id="patient-ident" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="patient-name" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Apellidos</label>
+                            <input type="text" class="form-control" id="patient-lastname" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Correo electrónico</label>
+                            <input type="email" class="form-control" id="patient-email" required>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Contraseña</label>
+                            <input type="password" class="form-control" id="patient-password">
+                            <small class="text-muted">Requerida solo para pacientes nuevos.</small>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btn-save-patient">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Doctor -->
     <div class="modal fade" id="doctorModal" tabindex="-1">
         <div class="modal-dialog">

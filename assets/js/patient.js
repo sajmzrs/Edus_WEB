@@ -47,7 +47,26 @@ $(document).ready(function() {
             loadAppointments();
             $('#book-appointment-form')[0].reset();
             $('#doctor-select, #schedule-select, #btn-submit-booking').prop('disabled', true);
-            $('#appointments-tab').tab('show'); // Switch back to list
+            $('#appointments-tab').tab('show');
+        });
+    });
+
+    $('#btn-save-modification').click(function() {
+        const appointmentId = $('#mod-appointment-id').val();
+        const scheduleId = $('#mod-schedule-select').val();
+
+        if(!appointmentId || !scheduleId) {
+            showAlert('Seleccione un nuevo horario para modificar la cita.', 'warning');
+            return;
+        }
+
+        apiRequest('appointments.php?action=modify', 'POST', {
+            appointment_id: appointmentId,
+            schedule_id: scheduleId
+        }, function(res) {
+            $('#modifyAppointmentModal').modal('hide');
+            showAlert(res.message, 'success');
+            loadAppointments();
         });
     });
 });
@@ -69,15 +88,19 @@ function loadAppointments() {
 
                 let actions = '';
                 if(app.status === 'scheduled') {
-                    actions = `<button class="btn btn-sm btn-danger me-1" onclick="cancelAppointment(${app.id})">Cancelar</button>`;
+                    const appData = encodeURIComponent(JSON.stringify(app));
+                    actions = `
+                        <button class="btn btn-sm btn-info text-white me-1" onclick="openModifyAppointment('${appData}')">Modificar</button>
+                        <button class="btn btn-sm btn-danger me-1" onclick="cancelAppointment(${app.id})">Cancelar</button>
+                    `;
                 }
 
                 html += `
                     <tr>
-                        <td>${app.schedule_date}</td>
-                        <td>${app.start_time}</td>
-                        <td>Dr(a). ${app.first_name} ${app.last_name}</td>
-                        <td>${app.specialty}</td>
+                        <td>${formatDate(app.schedule_date)}</td>
+                        <td>${formatTime(app.start_time)}</td>
+                        <td>Dr(a). ${escapeHtml(app.first_name)} ${escapeHtml(app.last_name)}</td>
+                        <td>${escapeHtml(app.specialty)}</td>
                         <td><span class="status-badge ${statusClass}">${statusText}</span></td>
                         <td>${actions}</td>
                     </tr>
@@ -92,7 +115,7 @@ function loadSpecialties() {
     apiRequest('appointments.php?action=specialties', 'GET', null, function(res) {
         let html = '<option value="">Seleccione una especialidad...</option>';
         res.data.forEach(function(sp) {
-            html += `<option value="${sp.specialty}">${sp.specialty}</option>`;
+            html += `<option value="${escapeHtml(sp.specialty)}">${escapeHtml(sp.specialty)}</option>`;
         });
         $('#specialty-select').html(html);
     });
@@ -102,7 +125,7 @@ function loadDoctors(specialty) {
     apiRequest('appointments.php?action=doctors&specialty=' + encodeURIComponent(specialty), 'GET', null, function(res) {
         let html = '<option value="">Seleccione un médico...</option>';
         res.data.forEach(function(doc) {
-            html += `<option value="${doc.id}">Dr(a). ${doc.first_name} ${doc.last_name}</option>`;
+            html += `<option value="${doc.id}">Dr(a). ${escapeHtml(doc.first_name)} ${escapeHtml(doc.last_name)}</option>`;
         });
         $('#doctor-select').html(html).prop('disabled', false);
         $('#schedule-select').prop('disabled', true).html('<option value="">Primero seleccione un médico</option>');
@@ -117,7 +140,7 @@ function loadSchedules(doctorId, selectElement) {
             html = '<option value="">No hay horarios disponibles</option>';
         } else {
             res.data.forEach(function(sch) {
-                html += `<option value="${sch.id}">${sch.schedule_date} de ${sch.start_time} a ${sch.end_time}</option>`;
+                html += `<option value="${sch.id}">${formatScheduleRange(sch)}</option>`;
             });
         }
         $(selectElement).html(html).prop('disabled', false);
@@ -131,4 +154,14 @@ function cancelAppointment(id) {
             loadAppointments();
         });
     }
+}
+
+function openModifyAppointment(encodedAppointment) {
+    const app = JSON.parse(decodeURIComponent(encodedAppointment));
+    $('#mod-appointment-id').val(app.id);
+    $('#mod-current-details').text(`${formatScheduleRange(app)} con Dr(a). ${cleanText(app.first_name)} ${cleanText(app.last_name)}`);
+    $('#mod-schedule-select').html('<option value="">Cargando horarios...</option>').prop('disabled', true);
+    $('#modifyAppointmentModal').modal('show');
+
+    loadSchedules(app.doctor_id, '#mod-schedule-select');
 }

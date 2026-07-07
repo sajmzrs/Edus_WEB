@@ -1,0 +1,41 @@
+erDiagram
+    USERS {
+        int id PK
+        varchar identification UK
+        varchar first_name
+        varchar last_name
+        varchar email UK
+        varchar password_hash
+        enum role
+        timestamp created_at
+    }
+
+    DOCTORS {
+        int id PK
+        varchar identification UK
+        varchar first_name
+        varchar last_name
+        varchar specialty
+        enum status
+    }
+
+    SCHEDULES {
+        int id PK
+        int doctor_id FK
+        date schedule_date
+        time start_time
+        time end_time
+        tinyint is_available
+    }
+
+    APPOINTMENTS {
+        int id PK
+        int patient_id FK
+        int schedule_id FK
+        enum status
+        timestamp created_at
+    }
+
+    USERS ||--o{ APPOINTMENTS : agenda
+    DOCTORS ||--o{ SCHEDULES : tiene
+    SCHEDULES ||--o{ APPOINTMENTS : reserva

@@ -19,7 +19,6 @@ $(document).ready(function() {
         $('#alert-container').empty();
     });
 
-    // Login submit
     $('#login-form').submit(function(e) {
         e.preventDefault();
         const email = $('#login-email').val();
@@ -37,7 +36,6 @@ $(document).ready(function() {
 
         apiRequest('auth.php?action=login', 'POST', data, 
             function(response) {
-                // Redirigir según el rol
                 if(response.user.role === 'admin') {
                     window.location.href = 'admin_panel.html';
                 } else {
@@ -47,7 +45,6 @@ $(document).ready(function() {
         );
     });
 
-    // Register submit
     $('#register-form').submit(function(e) {
         e.preventDefault();
         

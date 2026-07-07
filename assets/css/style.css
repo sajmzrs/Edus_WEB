@@ -14,7 +14,7 @@ body {
     background-color: var(--background-color);
     color: var(--text-color);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 1.1rem; /* Accessibility: larger default font */
+    font-size: 1.1rem;
     line-height: 1.6;
 }
 
@@ -23,7 +23,7 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
 }
 
-/* Navbar Customization */
+/* Barra de navegación */
 .navbar {
     background-color: var(--primary-color) !important;
     padding: 1rem 0;
@@ -44,7 +44,7 @@ h1, h2, h3, h4, h5, h6 {
     color: #ffffff !important;
 }
 
-/* Cards */
+/* Tarjetas */
 .card {
     background-color: var(--card-bg);
     border: 1px solid var(--border-color);
@@ -60,7 +60,7 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--primary-color);
 }
 
-/* Buttons */
+/* Botones */
 .btn {
     font-size: 1.1rem;
     padding: 10px 20px;
@@ -87,7 +87,7 @@ h1, h2, h3, h4, h5, h6 {
     border-color: var(--success-color);
 }
 
-/* Tables */
+/* Tablas */
 .table {
     background-color: var(--card-bg);
 }
@@ -98,7 +98,7 @@ h1, h2, h3, h4, h5, h6 {
     font-weight: 600;
 }
 
-/* Accessibility classes */
+/* Apoyo de contraste */
 .high-contrast-text {
     color: #000000;
     font-weight: 600;
@@ -139,7 +139,7 @@ h1, h2, h3, h4, h5, h6 {
     border-color: #c3e6cb;
 }
 
-/* Status Indicators */
+/* Estados de citas */
 .status-badge {
     padding: 5px 10px;
     border-radius: 4px;

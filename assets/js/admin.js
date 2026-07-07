@@ -1,15 +1,13 @@
 $(document).ready(function() {
     checkSession();
 
-    // Initial load
     loadPatients();
     loadDoctors();
     loadSchedules();
     loadReports();
 
-    // Tab changes
     $('#admin-menu a[data-bs-toggle="list"]').on('shown.bs.tab', function (e) {
-        let target = $(e.target).attr("href"); // activated tab
+        let target = $(e.target).attr("href");
         if(target === '#panel-patients') loadPatients();
         if(target === '#panel-doctors') loadDoctors();
         if(target === '#panel-schedules') loadSchedules();
@@ -24,7 +22,40 @@ $(document).ready(function() {
         loadSchedules($(this).val());
     });
 
-    // ---------------- DOCTORS ----------------
+    $('#btn-new-patient').click(function() {
+        $('#form-patient')[0].reset();
+        $('#patient-id').val('');
+        $('#patientModalLabel').text('Registrar Paciente');
+        $('#patient-password').prop('required', true);
+    });
+
+    $('#btn-save-patient').click(function() {
+        const data = {
+            id: $('#patient-id').val(),
+            identification: $('#patient-ident').val(),
+            first_name: $('#patient-name').val(),
+            last_name: $('#patient-lastname').val(),
+            email: $('#patient-email').val(),
+            password: $('#patient-password').val()
+        };
+
+        if(!data.identification || !data.first_name || !data.last_name || !data.email) {
+            showAlert('Complete los datos del paciente.', 'warning');
+            return;
+        }
+
+        if(!data.id && !data.password) {
+            showAlert('Ingrese una contraseña para el paciente nuevo.', 'warning');
+            return;
+        }
+
+        apiRequest('users.php?action=save', 'POST', data, function(res) {
+            $('#patientModal').modal('hide');
+            showAlert(res.message, 'success');
+            loadPatients();
+        });
+    });
+
     $('#btn-new-doctor').click(function() {
         $('#form-doctor')[0].reset();
         $('#doc-id').val('');
@@ -53,7 +84,6 @@ $(document).ready(function() {
         });
     });
 
-    // ---------------- SCHEDULES ----------------
     $('#btn-new-schedule').click(function() {
         $('#form-schedule')[0].reset();
         $('#sched-id').val('');
@@ -94,17 +124,31 @@ function loadPatients() {
             res.data.forEach(function(p) {
                 html += `
                     <tr>
-                        <td>${p.identification}</td>
-                        <td>${p.first_name}</td>
-                        <td>${p.last_name}</td>
-                        <td>${p.email}</td>
-                        <td><button class="btn btn-sm btn-danger" onclick="deletePatient(${p.id})">Eliminar</button></td>
+                        <td>${escapeHtml(p.identification)}</td>
+                        <td>${escapeHtml(p.first_name)}</td>
+                        <td>${escapeHtml(p.last_name)}</td>
+                        <td>${escapeHtml(p.email)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-info text-white" onclick='editPatient(${JSON.stringify(p)})'>Editar</button>
+                            <button class="btn btn-sm btn-danger" onclick="deletePatient(${p.id})">Eliminar</button>
+                        </td>
                     </tr>
                 `;
             });
         }
         $('#admin-patients-table').html(html);
     });
+}
+
+function editPatient(patient) {
+    $('#patient-id').val(patient.id);
+    $('#patient-ident').val(cleanText(patient.identification));
+    $('#patient-name').val(cleanText(patient.first_name));
+    $('#patient-lastname').val(cleanText(patient.last_name));
+    $('#patient-email').val(cleanText(patient.email));
+    $('#patient-password').val('').prop('required', false);
+    $('#patientModalLabel').text('Editar Paciente');
+    $('#patientModal').modal('show');
 }
 
 function deletePatient(id) {
@@ -125,13 +169,13 @@ function loadDoctors() {
         } else {
             res.data.forEach(function(d) {
                 let statusBadge = d.status === 'active' ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-secondary">Inactivo</span>';
-                docFilter += `<option value="${d.id}">Dr(a). ${d.first_name} ${d.last_name}</option>`;
+                docFilter += `<option value="${d.id}">Dr(a). ${escapeHtml(d.first_name)} ${escapeHtml(d.last_name)}</option>`;
                 html += `
                     <tr>
-                        <td>${d.identification}</td>
-                        <td>${d.first_name}</td>
-                        <td>${d.last_name}</td>
-                        <td>${d.specialty}</td>
+                        <td>${escapeHtml(d.identification)}</td>
+                        <td>${escapeHtml(d.first_name)}</td>
+                        <td>${escapeHtml(d.last_name)}</td>
+                        <td>${escapeHtml(d.specialty)}</td>
                         <td>${statusBadge}</td>
                         <td>
                             <button class="btn btn-sm btn-info text-white" onclick='editDoctor(${JSON.stringify(d)})'>Editar</button>
@@ -148,10 +192,10 @@ function loadDoctors() {
 
 function editDoctor(doc) {
     $('#doc-id').val(doc.id);
-    $('#doc-ident').val(doc.identification);
-    $('#doc-name').val(doc.first_name);
-    $('#doc-lastname').val(doc.last_name);
-    $('#doc-specialty').val(doc.specialty);
+    $('#doc-ident').val(cleanText(doc.identification));
+    $('#doc-name').val(cleanText(doc.first_name));
+    $('#doc-lastname').val(cleanText(doc.last_name));
+    $('#doc-specialty').val(cleanText(doc.specialty));
     $('#doc-status').val(doc.status);
     $('#doctorModalLabel').text('Editar Médico');
     $('#doctorModal').modal('show');
@@ -171,7 +215,7 @@ function populateDoctorSelect(selector, selectedId = null) {
         let html = '<option value="">Seleccione...</option>';
         res.data.forEach(function(d) {
             if(d.status === 'active') {
-                html += `<option value="${d.id}" ${d.id == selectedId ? 'selected' : ''}>Dr(a). ${d.first_name} ${d.last_name} - ${d.specialty}</option>`;
+                html += `<option value="${d.id}" ${d.id == selectedId ? 'selected' : ''}>Dr(a). ${escapeHtml(d.first_name)} ${escapeHtml(d.last_name)} - ${escapeHtml(d.specialty)}</option>`;
             }
         });
         $(selector).html(html);
@@ -191,10 +235,10 @@ function loadSchedules(docId = '') {
                 let availBadge = s.is_available == 1 ? '<span class="badge bg-success">Disponible</span>' : '<span class="badge bg-danger">Ocupado</span>';
                 html += `
                     <tr>
-                        <td>Dr(a). ${s.first_name} ${s.last_name}</td>
-                        <td>${s.schedule_date}</td>
-                        <td>${s.start_time}</td>
-                        <td>${s.end_time}</td>
+                        <td>Dr(a). ${escapeHtml(s.first_name)} ${escapeHtml(s.last_name)}</td>
+                        <td>${formatDate(s.schedule_date)}</td>
+                        <td>${formatTime(s.start_time)}</td>
+                        <td>${formatTime(s.end_time)}</td>
                         <td>${availBadge}</td>
                         <td>
                             <button class="btn btn-sm btn-info text-white" onclick='editSchedule(${JSON.stringify(s)})'>Editar</button>
@@ -240,9 +284,9 @@ function loadReports() {
                 html += `
                     <tr>
                         <td>#${r.id}</td>
-                        <td>${r.pf} ${r.pl} (${r.patient_id})</td>
-                        <td>Dr(a). ${r.df} ${r.dl}</td>
-                        <td>${r.schedule_date} ${r.start_time}</td>
+                        <td>${escapeHtml(r.pf)} ${escapeHtml(r.pl)} (${escapeHtml(r.patient_id)})</td>
+                        <td>Dr(a). ${escapeHtml(r.df)} ${escapeHtml(r.dl)}</td>
+                        <td>${formatDate(r.schedule_date)} ${formatTime(r.start_time)}</td>
                         <td class="${statusClass} fw-bold">${statusText}</td>
                     </tr>
                 `;

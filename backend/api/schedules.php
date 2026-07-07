@@ -41,12 +41,12 @@ switch($action) {
             $is_avail = isset($data->is_available) && $data->is_available ? 1 : 0;
             
             if(isset($data->id) && $data->id != '') {
-                // Update
+                // Actualiza un horario existente.
                 $query = "UPDATE schedules SET doctor_id = :did, schedule_date = :sdate, start_time = :stime, end_time = :etime, is_available = :avail WHERE id = :id";
                 $stmt = $db->prepare($query);
                 $stmt->bindParam(":id", $data->id);
             } else {
-                // Insert
+                // Registra un horario nuevo.
                 $query = "INSERT INTO schedules (doctor_id, schedule_date, start_time, end_time, is_available) VALUES (:did, :sdate, :stime, :etime, :avail)";
                 $stmt = $db->prepare($query);
             }
