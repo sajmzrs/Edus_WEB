@@ -5,48 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema EDUS - Acceso</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="index.html">EDUS - Gestión de Citas</a>
+            <a class="navbar-brand d-flex align-items-center gap-2" href="index.html">
+                <i class="bi bi-heart-pulse-fill"></i> EDUS - Gestión de Citas
+            </a>
+            <a href="index.html" class="btn btn-sm btn-nav-cta ms-auto">
+                <i class="bi bi-arrow-left me-1"></i> Volver al Inicio
+            </a>
         </div>
     </nav>
 
     <main class="container">
         <div class="row justify-content-center mt-5">
-            <div class="col-md-6">
-                <div class="card">
+            <div class="col-md-6 col-lg-5">
+                <div class="text-center mb-4">
+                    <div class="auth-icon mb-3">
+                        <i class="bi bi-person-badge-fill"></i>
+                    </div>
+                    <h2 id="form-title-heading">Bienvenido de nuevo</h2>
+                    <p class="text-muted">Ingrese sus credenciales para acceder a su expediente.</p>
+                </div>
+
+                <div class="card auth-card">
                     <div class="card-header text-center py-3">
                         <h4 class="mb-0" id="form-title">Iniciar Sesión</h4>
                     </div>
                     <div class="card-body p-4">
                         <div id="alert-container"></div>
-                        
+
                         <!-- Login Form -->
                         <form id="login-form">
                             <div class="mb-3">
-                                <label for="login-email" class="form-label high-contrast-text">Correo Electrónico</label>
-                                <input type="email" class="form-control" id="login-email" required>
+                                <label for="login-email" class="form-label high-contrast-text">
+                                    <i class="bi bi-envelope-fill step-icon"></i> Correo Electrónico
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                                    <input type="email" class="form-control" id="login-email" placeholder="nombre@correo.com" required>
+                                </div>
                             </div>
-                            <div class="mb-4">
-                                <label for="login-password" class="form-label high-contrast-text">Contraseña</label>
-                                <input type="password" class="form-control" id="login-password" required>
+                            <div class="mb-2">
+                                <label for="login-password" class="form-label high-contrast-text">
+                                    <i class="bi bi-lock-fill step-icon"></i> Contraseña
+                                </label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                    <input type="password" class="form-control" id="login-password" placeholder="••••••••" required>
+                                    <button class="btn btn-outline-secondary toggle-password" type="button" data-target="login-password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary" id="btn-login">Ingresar</button>
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-primary" id="btn-login">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i> Ingresar
+                                </button>
                             </div>
                             <div class="text-center mt-3">
-                                <a href="#" id="toggle-register" class="text-decoration-none">¿No tiene cuenta? Regístrese aquí</a>
+                                <a href="#" id="toggle-register" class="text-decoration-none">
+                                    <i class="bi bi-person-plus me-1"></i>¿No tiene cuenta? Regístrese aquí
+                                </a>
                             </div>
                         </form>
 
                         <!-- Register Form (Hidden by default) -->
                         <form id="register-form" style="display: none;">
                             <div class="mb-3">
-                                <label for="reg-identification" class="form-label high-contrast-text">Cédula</label>
-                                <input type="text" class="form-control" id="reg-identification" required>
+                                <label for="reg-identification" class="form-label high-contrast-text">
+                                    <i class="bi bi-card-text step-icon"></i> Cédula
+                                </label>
+                                <input type="text" class="form-control" id="reg-identification" placeholder="0-0000-0000" required>
                             </div>
                             <div class="row mb-3">
                                 <div class="col">
@@ -59,22 +92,39 @@
                                 </div>
                             </div>
                             <div class="mb-3">
-                                <label for="reg-email" class="form-label high-contrast-text">Correo Electrónico</label>
-                                <input type="email" class="form-control" id="reg-email" required>
+                                <label for="reg-email" class="form-label high-contrast-text">
+                                    <i class="bi bi-envelope-fill step-icon"></i> Correo Electrónico
+                                </label>
+                                <input type="email" class="form-control" id="reg-email" placeholder="nombre@correo.com" required>
                             </div>
-                            <div class="mb-4">
-                                <label for="reg-password" class="form-label high-contrast-text">Contraseña</label>
-                                <input type="password" class="form-control" id="reg-password" required>
+                            <div class="mb-2">
+                                <label for="reg-password" class="form-label high-contrast-text">
+                                    <i class="bi bi-lock-fill step-icon"></i> Contraseña
+                                </label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="reg-password" placeholder="••••••••" required>
+                                    <button class="btn btn-outline-secondary toggle-password" type="button" data-target="reg-password">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-success" id="btn-register">Completar Registro</button>
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-success" id="btn-register">
+                                    <i class="bi bi-check-circle me-1"></i> Completar Registro
+                                </button>
                             </div>
                             <div class="text-center mt-3">
-                                <a href="#" id="toggle-login" class="text-decoration-none">¿Ya tiene cuenta? Inicie sesión</a>
+                                <a href="#" id="toggle-login" class="text-decoration-none">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i>¿Ya tiene cuenta? Inicie sesión
+                                </a>
                             </div>
                         </form>
                     </div>
                 </div>
+
+                <p class="text-center text-muted mt-4 small">
+                    <i class="bi bi-shield-check me-1"></i>Sus datos están protegidos bajo estrictos estándares de seguridad.
+                </p>
             </div>
         </div>
     </main>
@@ -84,5 +134,25 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/utils.js"></script>
     <script src="assets/js/auth.js"></script>
+
+    <!-- Toggle mostrar/ocultar contraseña -->
+    <script>
+        document.querySelectorAll('.toggle-password').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const targetId = btn.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                const icon = btn.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.classList.remove('bi-eye');
+                    icon.classList.add('bi-eye-slash');
+                } else {
+                    input.type = 'password';
+                    icon.classList.remove('bi-eye-slash');
+                    icon.classList.add('bi-eye');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

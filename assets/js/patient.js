@@ -75,7 +75,7 @@ function loadAppointments() {
     apiRequest('appointments.php?action=list', 'GET', null, function(res) {
         let html = '';
         if(res.data.length === 0) {
-            html = '<tr><td colspan="6" class="text-center">No tiene citas programadas.</td></tr>';
+            html = '<tr><td colspan="6" class="text-center py-4 text-muted">No tiene citas programadas.</td></tr>';
         } else {
             res.data.forEach(function(app) {
                 let statusClass = '';
@@ -90,8 +90,14 @@ function loadAppointments() {
                 if(app.status === 'scheduled') {
                     const appData = encodeURIComponent(JSON.stringify(app));
                     actions = `
-                        <button class="btn btn-sm btn-info text-white me-1" onclick="openModifyAppointment('${appData}')">Modificar</button>
-                        <button class="btn btn-sm btn-danger me-1" onclick="cancelAppointment(${app.id})">Cancelar</button>
+                        <div class="d-flex gap-2 justify-content-end">
+                            <button class="btn btn-sm btn-edit" onclick="openModifyAppointment('${appData}')">
+                                <i class="bi bi-pencil-fill"></i> Modificar
+                            </button>
+                            <button class="btn btn-sm btn-danger" onclick="cancelAppointment(${app.id})">
+                                <i class="bi bi-x-circle-fill"></i> Cancelar
+                            </button>
+                        </div>
                     `;
                 }
 
