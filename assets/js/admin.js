@@ -119,7 +119,7 @@ function loadPatients() {
     apiRequest('users.php?action=list', 'GET', null, function(res) {
         let html = '';
         if(res.data.length === 0) {
-            html = '<tr><td colspan="5" class="text-center">No hay pacientes registrados.</td></tr>';
+            html = '<tr><td colspan="5" class="text-center py-4 text-muted">No hay pacientes registrados.</td></tr>';
         } else {
             res.data.forEach(function(p) {
                 html += `
@@ -129,8 +129,14 @@ function loadPatients() {
                         <td>${escapeHtml(p.last_name)}</td>
                         <td>${escapeHtml(p.email)}</td>
                         <td>
-                            <button class="btn btn-sm btn-info text-white" onclick='editPatient(${JSON.stringify(p)})'>Editar</button>
-                            <button class="btn btn-sm btn-danger" onclick="deletePatient(${p.id})">Eliminar</button>
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button class="btn btn-sm btn-edit" onclick='editPatient(${JSON.stringify(p)})'>
+                                    <i class="bi bi-pencil-fill"></i> Editar
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deletePatient(${p.id})">
+                                    <i class="bi bi-trash-fill"></i> Eliminar
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -165,10 +171,12 @@ function loadDoctors() {
         let html = '';
         let docFilter = '<option value="">Todos</option>';
         if(res.data.length === 0) {
-            html = '<tr><td colspan="6" class="text-center">No hay médicos registrados.</td></tr>';
+            html = '<tr><td colspan="6" class="text-center py-4 text-muted">No hay médicos registrados.</td></tr>';
         } else {
             res.data.forEach(function(d) {
-                let statusBadge = d.status === 'active' ? '<span class="badge bg-success">Activo</span>' : '<span class="badge bg-secondary">Inactivo</span>';
+                let statusBadge = d.status === 'active'
+                    ? '<span class="status-badge status-scheduled">Activo</span>'
+                    : '<span class="status-badge status-cancelled">Inactivo</span>';
                 docFilter += `<option value="${d.id}">Dr(a). ${escapeHtml(d.first_name)} ${escapeHtml(d.last_name)}</option>`;
                 html += `
                     <tr>
@@ -178,8 +186,14 @@ function loadDoctors() {
                         <td>${escapeHtml(d.specialty)}</td>
                         <td>${statusBadge}</td>
                         <td>
-                            <button class="btn btn-sm btn-info text-white" onclick='editDoctor(${JSON.stringify(d)})'>Editar</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteDoctor(${d.id})">Eliminar</button>
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button class="btn btn-sm btn-edit" onclick='editDoctor(${JSON.stringify(d)})'>
+                                    <i class="bi bi-pencil-fill"></i> Editar
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteDoctor(${d.id})">
+                                    <i class="bi bi-trash-fill"></i> Eliminar
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -225,14 +239,16 @@ function populateDoctorSelect(selector, selectedId = null) {
 function loadSchedules(docId = '') {
     let url = 'schedules.php?action=list';
     if(docId) url += '&doctor_id=' + docId;
-    
+
     apiRequest(url, 'GET', null, function(res) {
         let html = '';
         if(res.data.length === 0) {
-            html = '<tr><td colspan="6" class="text-center">No hay horarios registrados.</td></tr>';
+            html = '<tr><td colspan="6" class="text-center py-4 text-muted">No hay horarios registrados.</td></tr>';
         } else {
             res.data.forEach(function(s) {
-                let availBadge = s.is_available == 1 ? '<span class="badge bg-success">Disponible</span>' : '<span class="badge bg-danger">Ocupado</span>';
+                let availBadge = s.is_available == 1
+                    ? '<span class="status-badge status-scheduled">Disponible</span>'
+                    : '<span class="status-badge status-cancelled">Ocupado</span>';
                 html += `
                     <tr>
                         <td>Dr(a). ${escapeHtml(s.first_name)} ${escapeHtml(s.last_name)}</td>
@@ -241,8 +257,14 @@ function loadSchedules(docId = '') {
                         <td>${formatTime(s.end_time)}</td>
                         <td>${availBadge}</td>
                         <td>
-                            <button class="btn btn-sm btn-info text-white" onclick='editSchedule(${JSON.stringify(s)})'>Editar</button>
-                            <button class="btn btn-sm btn-danger" onclick="deleteSchedule(${s.id})">Eliminar</button>
+                            <div class="d-flex gap-2 justify-content-end">
+                                <button class="btn btn-sm btn-edit" onclick='editSchedule(${JSON.stringify(s)})'>
+                                    <i class="bi bi-pencil-fill"></i> Editar
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteSchedule(${s.id})">
+                                    <i class="bi bi-trash-fill"></i> Eliminar
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -276,10 +298,10 @@ function loadReports() {
     apiRequest('schedules.php?action=reports', 'GET', null, function(res) {
         let html = '';
         if(res.data.length === 0) {
-            html = '<tr><td colspan="5" class="text-center">No hay citas registradas.</td></tr>';
+            html = '<tr><td colspan="5" class="text-center py-4 text-muted">No hay citas registradas.</td></tr>';
         } else {
             res.data.forEach(function(r) {
-                let statusClass = r.status === 'scheduled' ? 'text-primary' : (r.status === 'completed' ? 'text-success' : 'text-danger');
+                let statusBadgeClass = r.status === 'scheduled' ? 'status-scheduled' : (r.status === 'completed' ? 'status-completed' : 'status-cancelled');
                 let statusText = r.status === 'scheduled' ? 'Programada' : (r.status === 'completed' ? 'Completada' : 'Cancelada');
                 html += `
                     <tr>
@@ -287,7 +309,7 @@ function loadReports() {
                         <td>${escapeHtml(r.pf)} ${escapeHtml(r.pl)} (${escapeHtml(r.patient_id)})</td>
                         <td>Dr(a). ${escapeHtml(r.df)} ${escapeHtml(r.dl)}</td>
                         <td>${formatDate(r.schedule_date)} ${formatTime(r.start_time)}</td>
-                        <td class="${statusClass} fw-bold">${statusText}</td>
+                        <td><span class="status-badge ${statusBadgeClass}">${statusText}</span></td>
                     </tr>
                 `;
             });
